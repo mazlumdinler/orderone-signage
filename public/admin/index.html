@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OrderOne — Menü Yönetim Paneli</title>
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+<div id="login-screen" class="login-screen">
+  <form id="login-form" class="login-card">
+    <h1>OrderOne Signage</h1>
+    <p class="muted">Menü yönetim paneline giriş yapın</p>
+    <label>Kullanıcı adı</label>
+    <input type="text" id="login-username" autocomplete="username" required />
+    <label>Şifre</label>
+    <input type="password" id="login-password" autocomplete="current-password" required />
+    <button type="submit">Giriş Yap</button>
+    <div id="login-error" class="error-text"></div>
+  </form>
+</div>
+
+<div id="app" class="app hidden">
+  <header class="topbar">
+    <div class="brand">🍽️ OrderOne <span class="muted">Signage Yönetimi</span></div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="boards">Menü Panoları</button>
+      <button class="tab-btn" data-tab="square">Square POS</button>
+      <button class="tab-btn" data-tab="screens">Ekranlar</button>
+      <button class="tab-btn" data-tab="account">Hesap</button>
+    </nav>
+    <div class="topbar-right">
+      <span id="whoami" class="muted"></span>
+      <button id="logout-btn" class="btn-ghost">Çıkış</button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- BOARDS TAB -->
+    <section id="tab-boards" class="tab-panel">
+      <div class="layout-2col">
+        <aside class="board-list-panel">
+          <div class="panel-head">
+            <h2>Menü Panoları</h2>
+            <button id="add-board-btn" class="btn-primary btn-sm">+ Yeni Board</button>
+          </div>
+          <p class="muted small">TV'de dönüşümlü gösterilen her bir menü sayfası bir "board"dur. İstediğin kadar ekleyebilirsin.</p>
+          <ul id="board-list" class="board-list"></ul>
+        </aside>
+
+        <section class="board-detail-panel" id="board-detail">
+          <div class="empty-state">Soldan bir menü panosu seçin ya da yeni bir tane oluşturun.</div>
+        </section>
+      </div>
+    </section>
+
+    <!-- SQUARE TAB -->
+    <section id="tab-square" class="tab-panel hidden">
+      <div class="card" style="max-width:720px">
+        <h2>Square POS Bağlantısı</h2>
+        <p class="muted">Square Access Token'ınızı buraya girin; ürünlerinizi Square'deki kataloğunuzla eşleştirebilirsiniz. TV'de görünen isim ile Square'deki isim <strong>aynı olmak zorunda değildir</strong> — eşleştirmeyi siz her ürün için ayrı ayrı yaparsınız.</p>
+        <label>Restoran Adı (TV'de gösterilebilir, opsiyonel)</label>
+        <input type="text" id="setting-restaurant-name" placeholder="Örn: OrderOne Cafe & Bistro" />
+
+        <label>Square Ortamı</label>
+        <select id="setting-square-env">
+          <option value="production">Production (canlı Square hesabı)</option>
+          <option value="sandbox">Sandbox (test hesabı)</option>
+        </select>
+
+        <label>Square Location ID <span class="muted small">(opsiyonel, bilgi amaçlı)</span></label>
+        <input type="text" id="setting-square-location" placeholder="L1234567890" />
+
+        <label>Square Access Token</label>
+        <input type="password" id="setting-square-token" placeholder="Kayıtlıysa boş bırakabilirsiniz" />
+        <p class="muted small">Token'ı Square Developer Dashboard → Applications → Credentials bölümünden alabilirsiniz. Token kaydedildikten sonra tekrar ekranda gösterilmez.</p>
+        <div id="token-status" class="muted small"></div>
+
+        <div class="row gap">
+          <button id="save-settings-btn" class="btn-primary">Ayarları Kaydet</button>
+          <button id="sync-square-btn" class="btn-secondary">Square Kataloğunu Senkronize Et</button>
+        </div>
+        <div id="settings-msg" class="msg"></div>
+        <div id="sync-msg" class="msg"></div>
+      </div>
+
+      <div class="card" style="max-width:720px">
+        <h2>Önbelleğe Alınan Square Ürünleri</h2>
+        <p class="muted small">Senkronizasyon sonrası çekilen ürün/varyasyon listesi. Ürün eşleştirmesini her menü kaleminin düzenleme formundan yaparsınız.</p>
+        <input type="text" id="square-products-search" placeholder="Ürün ara…" />
+        <div id="square-products-list" class="pos-product-list"></div>
+      </div>
+    </section>
+
+    <!-- SCREENS TAB -->
+    <section id="tab-screens" class="tab-panel hidden">
+      <div class="card" style="max-width:820px">
+        <h2>Bağlı Ekranlar</h2>
+        <p class="muted small">TV'de /display sayfası açık olduğu sürece her ~60 saniyede bir buraya "canlı" sinyali gönderir. 2 dakikadan uzun süredir sinyal yoksa ekran çevrimdışı kabul edilir.</p>
+        <button id="refresh-screens-btn" class="btn-secondary btn-sm">Yenile</button>
+        <table class="table" id="screens-table">
+          <thead><tr><th>Cihaz</th><th>Gösterilen Board</th><th>Son Görülme</th><th>Durum</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="card" style="max-width:820px">
+        <h2>TV'de nasıl açılır?</h2>
+        <p>LG TV'nizin tarayıcısında (veya bir medya oynatıcı kutusunda) aşağıdaki adresi tam ekran açın:</p>
+        <code id="display-url-hint" class="code-block">/display</code>
+        <p class="muted small">Sayfa otomatik olarak tüm aktif board'lar arasında dönüşümlü geçiş yapar ve her 30 saniyede bir menü değişikliklerini kendiliğinden günceller — TV'yi yeniden başlatmanıza gerek yoktur.</p>
+      </div>
+    </section>
+
+    <!-- ACCOUNT TAB -->
+    <section id="tab-account" class="tab-panel hidden">
+      <div class="card" style="max-width:480px">
+        <h2>Şifre Değiştir</h2>
+        <label>Mevcut Şifre</label>
+        <input type="password" id="cp-current" />
+        <label>Yeni Şifre</label>
+        <input type="password" id="cp-new" />
+        <button id="change-password-btn" class="btn-primary">Şifreyi Güncelle</button>
+        <div id="cp-msg" class="msg"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Item edit modal -->
+<div id="item-modal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="item-modal-title">Ürün Düzenle</h3>
+      <button class="modal-close" data-close-modal>&times;</button>
+    </div>
+    <div class="modal-body">
+      <label>Görünen Ad (TV'de bu isim gösterilir)</label>
+      <input type="text" id="item-name" />
+
+      <label>Açıklama</label>
+      <textarea id="item-desc" rows="2"></textarea>
+
+      <div class="row gap">
+        <div style="flex:1">
+          <label>Fiyat ($)</label>
+          <input type="number" step="0.01" id="item-price" />
+        </div>
+        <div style="flex:1">
+          <label>Fiyat Notu <span class="muted small">(örn. +$5)</span></label>
+          <input type="text" id="item-price-suffix" />
+        </div>
+      </div>
+
+      <label>Görsel</label>
+      <div class="row gap" style="align-items:center">
+        <img id="item-image-preview" class="thumb" alt="" />
+        <input type="file" id="item-image-file" accept="image/*" />
+      </div>
+
+      <label>Rozetler</label>
+      <div class="badge-checks">
+        <label><input type="checkbox" value="spicy" class="badge-check" /> 🌶️ Acılı</label>
+        <label><input type="checkbox" value="double_spicy" class="badge-check" /> 🔥 Çok Acılı</label>
+        <label><input type="checkbox" value="egg" class="badge-check" /> 🍳 Yumurta</label>
+        <label><input type="checkbox" value="vegetarian" class="badge-check" /> 🌱 Vejetaryen</label>
+        <label><input type="checkbox" value="halal" class="badge-check" /> ☪️ Helal Et</label>
+      </div>
+
+      <label><input type="checkbox" id="item-available" checked /> Menüde aktif / satışta</label>
+
+      <hr />
+      <h4>Square POS Bağlantısı</h4>
+      <p class="muted small">Bu TV ürününü Square'deki gerçek ürünle eşleştirin. İsimler farklı olabilir — sadece doğru olanı seçin.</p>
+      <input type="text" id="item-pos-search" placeholder="Square ürünlerinde ara…" />
+      <div id="item-pos-results" class="pos-results"></div>
+      <div id="item-pos-linked" class="pos-linked hidden">
+        Bağlı: <strong id="item-pos-linked-name"></strong>
+        <button id="item-pos-unlink" class="btn-ghost btn-sm">Bağlantıyı Kaldır</button>
+      </div>
+      <label class="small muted" style="margin-top:10px">Manuel POS adı (Square bağlı değilse, sadece not amaçlı)</label>
+      <input type="text" id="item-pos-manual" />
+
+      <div class="row gap" style="margin-top:16px">
+        <button id="item-save-btn" class="btn-primary">Kaydet</button>
+        <button id="item-delete-btn" class="btn-danger">Ürünü Sil</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "orderone-signage",
+  "version": "1.0.0",
+  "description": "OrderOne Restaurant - Digital Signage Menu System (Admin Panel + LG TV Display) with Square POS linking",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node src/seed.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-session": "^2.1.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "multer": "^2.0.1"
+  }
+}
