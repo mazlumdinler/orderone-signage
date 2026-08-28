@@ -38,13 +38,13 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
   const board = db.prepare('SELECT * FROM boards WHERE id = ?').get(req.params.id);
-  if (!board) return res.status(404).json({ error: 'Board bulunamadı' });
+  if (!board) return res.status(404).json({ error: 'Board not found' });
   res.json(board);
 });
 
 router.post('/', (req, res) => {
   const { name, subtitle = '', template = 'classic', rotation_seconds = 20, accent = '' } = req.body || {};
-  if (!name) return res.status(400).json({ error: 'Board adı gerekli' });
+  if (!name) return res.status(400).json({ error: 'Board name is required' });
   const slug = uniqueSlug(name);
   const maxOrder = db.prepare('SELECT COALESCE(MAX(sort_order), -1) AS m FROM boards').get().m;
   const info = db
@@ -59,7 +59,7 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM boards WHERE id = ?').get(req.params.id);
-  if (!existing) return res.status(404).json({ error: 'Board bulunamadı' });
+  if (!existing) return res.status(404).json({ error: 'Board not found' });
   const {
     name = existing.name,
     subtitle = existing.subtitle,
@@ -79,7 +79,7 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM boards WHERE id = ?').get(req.params.id);
-  if (!existing) return res.status(404).json({ error: 'Board bulunamadı' });
+  if (!existing) return res.status(404).json({ error: 'Board not found' });
   db.prepare('DELETE FROM boards WHERE id = ?').run(existing.id);
   res.json({ ok: true });
 });
@@ -87,7 +87,7 @@ router.delete('/:id', (req, res) => {
 // Bulk reorder: body = { order: [boardId, boardId, ...] } in desired order
 router.post('/reorder', (req, res) => {
   const { order } = req.body || {};
-  if (!Array.isArray(order)) return res.status(400).json({ error: 'order dizisi gerekli' });
+  if (!Array.isArray(order)) return res.status(400).json({ error: 'order array is required' });
   const stmt = db.prepare('UPDATE boards SET sort_order = ? WHERE id = ?');
   const tx = db.transaction((ids) => {
     ids.forEach((id, idx) => stmt.run(idx, id));

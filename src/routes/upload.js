@@ -24,7 +24,7 @@ const upload = multer({
   limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    if (!ALLOWED.has(ext)) return cb(new Error('Sadece jpg, png, webp veya gif yükleyebilirsiniz'));
+    if (!ALLOWED.has(ext)) return cb(new Error('Only jpg, png, webp, or gif files can be uploaded'));
     cb(null, true);
   },
 });
@@ -34,7 +34,7 @@ const router = express.Router();
 router.post('/', requireAuth, (req, res) => {
   upload.single('image')(req, res, (err) => {
     if (err) return res.status(400).json({ error: err.message });
-    if (!req.file) return res.status(400).json({ error: 'Dosya bulunamadı' });
+    if (!req.file) return res.status(400).json({ error: 'File not found' });
     res.json({ url: `/uploads/${req.file.filename}` });
   });
 });

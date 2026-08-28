@@ -22,7 +22,7 @@ function baseUrl() {
 async function squareFetch(pathAndQuery, options = {}) {
   const token = getSetting('square_access_token', '');
   if (!token) {
-    const err = new Error('Square Access Token ayarlanmamış. Önce Ayarlar sayfasından ekleyin.');
+    const err = new Error('Square Access Token is not set. Add it from the Settings page first.');
     err.code = 'NO_TOKEN';
     throw err;
   }
@@ -37,7 +37,7 @@ async function squareFetch(pathAndQuery, options = {}) {
   });
   const json = await resp.json().catch(() => ({}));
   if (!resp.ok) {
-    const msg = (json.errors && json.errors.map((e) => e.detail).join('; ')) || `Square API hatası (${resp.status})`;
+    const msg = (json.errors && json.errors.map((e) => e.detail).join('; ')) || `Square API error (${resp.status})`;
     const err = new Error(msg);
     err.status = resp.status;
     throw err;
@@ -68,7 +68,7 @@ router.post('/sync', async (req, res) => {
         if (obj.type !== 'ITEM' || !obj.item_data) continue;
         const variations = obj.item_data.variations || [];
         if (variations.length === 0) {
-          upsertStmt.run(obj.id, '', obj.item_data.name || '(isimsiz)', '', null, 'USD', JSON.stringify(obj));
+          upsertStmt.run(obj.id, '', obj.item_data.name || '(unnamed)', '', null, 'USD', JSON.stringify(obj));
           upserted.push(obj.id);
         } else {
           for (const v of variations) {
@@ -78,7 +78,7 @@ router.post('/sync', async (req, res) => {
             upsertStmt.run(
               obj.id,
               v.id,
-              obj.item_data.name || '(isimsiz)',
+              obj.item_data.name || '(unnamed)',
               variations.length > 1 ? vd.name || '' : '',
               amount != null ? amount / 100 : null,
               currency,
@@ -116,7 +116,7 @@ router.get('/products', (req, res) => {
 
 router.get('/products/:id', (req, res) => {
   const row = db.prepare('SELECT * FROM pos_products WHERE id = ?').get(req.params.id);
-  if (!row) return res.status(404).json({ error: 'Bulunamadı' });
+  if (!row) return res.status(404).json({ error: 'Not found' });
   res.json(row);
 });
 

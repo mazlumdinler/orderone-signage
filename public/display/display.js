@@ -8,10 +8,30 @@
   };
 
   var COLS_BY_TEMPLATE = {
-    'breakfast-classic': 3,
-    'sandwich-classic': 3,
+    'breakfast-classic': 4,
+    'sandwich-classic': 4,
     'grid': 3,
   };
+
+  // Real photos cropped from the restaurant's own original menu artwork,
+  // matched to the category (by column_hint) they illustrated there.
+  var PHOTO_MAP = {
+    'plates': '/design/board1/breakfast-plates-collage.jpg',
+    'french-toast': '/design/board1/french-toast-collage.jpg',
+    'waffle-1': '/design/board1/waffle-1.jpg',
+    'waffle-2': '/design/board1/waffle-2.jpg',
+    'pancakes': '/design/board1/pancake-plate.jpg',
+    'salads': '/design/board1/salad-photo.jpg',
+    'pastries': '/design/board2/pastry-collage.jpg',
+    'puddings': '/design/board2/pudding-fruit-photo.jpg',
+    'sandwich-1': '/design/board2/croissant-bagel-diamond.jpg',
+    'sandwich-2': '/design/board2/wrap-diamond.jpg',
+    'sandwich-3': '/design/board2/panini-diamond.jpg',
+  };
+
+  // column_hints whose "photo" is used as a repeating background texture
+  // on the panel itself, instead of a header image above the items.
+  var TEXTURE_HINTS = { 'sides-dark': true };
 
   var CACHE_KEY = 'signage_cache_v1';
   var DEVICE_KEY = 'signage_device_id';
@@ -55,11 +75,11 @@
   // Vector icons (not emoji) so badges render identically on every TV/browser,
   // regardless of which emoji font (if any) the device ships with.
   var BADGE_META = {
-    spicy: { color: '#c23b22', label: 'Acılı', path: 'M12 3c-1.8 1.9-1.8 3.6-.7 4.8C8.6 8 6 10.4 6 13.5A6 6 0 0018 13.5c0-3.8-2.7-6.8-6-10.5z' },
-    double_spicy: { color: '#c23b22', label: 'Çok Acılı', path: 'M8.5 14.5c1.4 0 2.5-1.1 2.5-2.5 0-1-.4-1.7-.9-2.6-1-1.9-.2-3.6 1.8-5.4.4 2.2 1.8 4.4 3.6 5.9 1.8 1.4 2.7 3.1 2.7 4.9a6.2 6.2 0 01-12.4 0c0-1 .4-2 .9-2.7.2 1.4 1.4 2.4 1.8 2.4z' },
-    egg: { color: '#e0a731', label: 'Yumurta', path: null, shape: 'egg' },
-    vegetarian: { color: '#3f8f3f', label: 'Vejetaryen', path: 'M4 20C4 10.5 11.5 4 20 4c0 8.5-6.5 16-16 16zM4 20c3-6 8-10 15-13' },
-    halal: { color: '#5a4a35', label: 'Helal Et', path: 'M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z' },
+    spicy: { color: '#c23b22', label: 'Spicy', path: 'M12 3c-1.8 1.9-1.8 3.6-.7 4.8C8.6 8 6 10.4 6 13.5A6 6 0 0018 13.5c0-3.8-2.7-6.8-6-10.5z' },
+    double_spicy: { color: '#c23b22', label: 'Extra Spicy', path: 'M8.5 14.5c1.4 0 2.5-1.1 2.5-2.5 0-1-.4-1.7-.9-2.6-1-1.9-.2-3.6 1.8-5.4.4 2.2 1.8 4.4 3.6 5.9 1.8 1.4 2.7 3.1 2.7 4.9a6.2 6.2 0 01-12.4 0c0-1 .4-2 .9-2.7.2 1.4 1.4 2.4 1.8 2.4z' },
+    egg: { color: '#e0a731', label: 'Egg', path: null, shape: 'egg' },
+    vegetarian: { color: '#3f8f3f', label: 'Vegetarian', path: 'M4 20C4 10.5 11.5 4 20 4c0 8.5-6.5 16-16 16zM4 20c3-6 8-10 15-13' },
+    halal: { color: '#5a4a35', label: 'Halal Meat', path: 'M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z' },
   };
 
   function badgeIconSvg(key) {
@@ -131,14 +151,24 @@
 
   function renderCategory(cat) {
     var styleClass = STYLE_MAP[cat.column_hint] || '';
+    var wideItems = cat.items.length > 6 ? ' two-col' : '';
     var itemsHtml = cat.items.map(renderItem).join('');
+    var photoUrl = PHOTO_MAP[cat.column_hint];
+    var photoHtml = '';
+    var textureStyle = '';
+    if (photoUrl && TEXTURE_HINTS[cat.column_hint]) {
+      textureStyle = ' style="--tex-url:url(' + esc(photoUrl) + ')"';
+    } else if (photoUrl) {
+      photoHtml = '<div class="cat-photo"><img src="' + esc(photoUrl) + '" alt="" loading="lazy" /></div>';
+    }
     return (
-      '<div class="category-card ' + styleClass + '">' +
+      '<div class="category-card ' + styleClass + (photoHtml ? ' has-photo' : '') + '"' + textureStyle + '>' +
+        photoHtml +
         '<div class="cat-head">' +
           '<div class="cat-name">' + esc(cat.name) + '</div>' +
           (cat.note ? '<div class="cat-note">' + esc(cat.note) + '</div>' : '') +
         '</div>' +
-        '<div class="cat-items">' + itemsHtml + '</div>' +
+        '<div class="cat-items' + wideItems + '">' + itemsHtml + '</div>' +
       '</div>'
     );
   }
@@ -173,7 +203,7 @@
       boards = boards.filter(function (b) { return b.slug === singleSlug; });
     }
     if (!boards.length) {
-      stageEl.innerHTML = '<div class="loading-screen">Menü bulunamadı. Lütfen admin panelden en az bir board oluşturup aktif hale getirin.</div>';
+      stageEl.innerHTML = '<div class="loading-screen">No menu found. Please create and activate at least one board from the admin panel.</div>';
       return;
     }
     boards.forEach(function (board, i) {
@@ -261,7 +291,7 @@
             lastDataStr = JSON.stringify(cached.boards);
             buildStage(cached);
           } else {
-            stageEl.innerHTML = '<div class="loading-screen">Menü sunucusuna bağlanılamıyor…</div>';
+            stageEl.innerHTML = '<div class="loading-screen">Unable to connect to the menu server…</div>';
           }
         }
         connWarnEl.classList.remove('hidden');
@@ -276,7 +306,7 @@
   }
 
   // Initial load
-  stageEl.innerHTML = '<div class="loading-screen">Menü yükleniyor…</div>';
+  stageEl.innerHTML = '<div class="loading-screen">Loading menu…</div>';
   fetchAndRender(true);
   setInterval(function () { fetchAndRender(false); }, POLL_MS);
   setInterval(function () { sendPing(boards[currentIndex] ? boards[currentIndex].slug : ''); }, PING_MS);

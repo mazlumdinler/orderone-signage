@@ -27,7 +27,7 @@
     });
     let data = null;
     try { data = await res.json(); } catch (e) { /* no body */ }
-    if (!res.ok) throw new Error((data && data.error) || `Hata (${res.status})`);
+    if (!res.ok) throw new Error((data && data.error) || `Error (${res.status})`);
     return data;
   }
 
@@ -103,11 +103,11 @@
       li.innerHTML = `
         <div>
           <div class="b-name">${esc(board.name)}</div>
-          <div class="b-meta">${board.is_active ? 'Yayında' : 'Pasif'} · ${board.rotation_seconds}s</div>
+          <div class="b-meta">${board.is_active ? 'Live' : 'Inactive'} · ${board.rotation_seconds}s</div>
         </div>
         <div class="b-order-btns">
-          <button class="btn-icon" data-up="${board.id}" title="Yukarı taşı">▲</button>
-          <button class="btn-icon" data-down="${board.id}" title="Aşağı taşı">▼</button>
+          <button class="btn-icon" data-up="${board.id}" title="Move up">▲</button>
+          <button class="btn-icon" data-down="${board.id}" title="Move down">▼</button>
         </div>`;
       li.addEventListener('click', (e) => {
         if (e.target.closest('button')) return;
@@ -130,7 +130,7 @@
   }
 
   $('#add-board-btn').addEventListener('click', async () => {
-    const name = prompt('Yeni menü panosu adı (örn: "Öğle Menüsü", "Tatlılar"):');
+    const name = prompt('New menu board name (e.g. "Lunch Menu", "Desserts"):');
     if (!name) return;
     const board = await api('/boards', { method: 'POST', body: { name, template: 'grid' } });
     await loadBoards();
@@ -158,35 +158,35 @@
     const board = state.boards.find((b) => b.id === state.activeBoardId);
     const panel = $('#board-detail');
     if (!board) {
-      panel.innerHTML = '<div class="empty-state">Soldan bir menü panosu seçin.</div>';
+      panel.innerHTML = '<div class="empty-state">Select a menu board on the left.</div>';
       return;
     }
     panel.innerHTML = `
       <div class="board-header-row">
         <h2>${esc(board.name)}</h2>
         <div class="row gap">
-          <a class="btn-ghost btn-sm" href="/display/${esc(board.slug)}" target="_blank">▶ Önizle</a>
-          <button class="btn-danger btn-sm" id="delete-board-btn">Panoyu Sil</button>
+          <a class="btn-ghost btn-sm" href="/display/${esc(board.slug)}" target="_blank">▶ Preview</a>
+          <button class="btn-danger btn-sm" id="delete-board-btn">Delete Board</button>
         </div>
       </div>
       <div class="board-fields">
-        <div><label>Board Adı</label><input type="text" id="board-name" value="${escAttr(board.name)}" /></div>
-        <div><label>Alt Başlık</label><input type="text" id="board-subtitle" value="${escAttr(board.subtitle || '')}" /></div>
-        <div><label>Şablon</label>
+        <div><label>Board Name</label><input type="text" id="board-name" value="${escAttr(board.name)}" /></div>
+        <div><label>Subtitle</label><input type="text" id="board-subtitle" value="${escAttr(board.subtitle || '')}" /></div>
+        <div><label>Template</label>
           <select id="board-template">
-            <option value="breakfast-classic" ${board.template === 'breakfast-classic' ? 'selected' : ''}>Klasik (kahvaltı/waffle stili)</option>
-            <option value="sandwich-classic" ${board.template === 'sandwich-classic' ? 'selected' : ''}>Klasik (sandviç/tatlı stili)</option>
-            <option value="grid" ${board.template === 'grid' ? 'selected' : ''}>Genel Amaçlı Izgara</option>
+            <option value="breakfast-classic" ${board.template === 'breakfast-classic' ? 'selected' : ''}>Classic (breakfast/waffle style)</option>
+            <option value="sandwich-classic" ${board.template === 'sandwich-classic' ? 'selected' : ''}>Classic (sandwich/dessert style)</option>
+            <option value="grid" ${board.template === 'grid' ? 'selected' : ''}>General-Purpose Grid</option>
           </select>
         </div>
-        <div><label>Rotasyon Süresi (saniye)</label><input type="number" id="board-rotation" value="${board.rotation_seconds}" min="5" /></div>
-        <div class="full"><label><input type="checkbox" id="board-active" ${board.is_active ? 'checked' : ''} /> TV rotasyonunda göster (aktif)</label></div>
+        <div><label>Rotation Duration (seconds)</label><input type="number" id="board-rotation" value="${board.rotation_seconds}" min="5" /></div>
+        <div class="full"><label><input type="checkbox" id="board-active" ${board.is_active ? 'checked' : ''} /> Show in TV rotation (active)</label></div>
       </div>
-      <button class="btn-primary btn-sm" id="save-board-btn">Board Bilgilerini Kaydet</button>
+      <button class="btn-primary btn-sm" id="save-board-btn">Save Board Info</button>
       <div id="board-save-msg" class="msg"></div>
 
       <div id="categories-container"></div>
-      <button class="btn-secondary" id="add-category-btn" style="margin-top:16px">+ Yeni Kategori Ekle</button>
+      <button class="btn-secondary" id="add-category-btn" style="margin-top:16px">+ Add New Category</button>
     `;
 
     $('#save-board-btn').addEventListener('click', saveBoardFields);
@@ -206,7 +206,7 @@
       is_active: $('#board-active').checked,
     };
     await api('/boards/' + id, { method: 'PUT', body });
-    $('#board-save-msg').textContent = 'Kaydedildi ✓';
+    $('#board-save-msg').textContent = 'Saved ✓';
     $('#board-save-msg').className = 'msg ok';
     await loadBoards();
     setTimeout(() => { const m = $('#board-save-msg'); if (m) m.textContent = ''; }, 2000);
@@ -214,14 +214,14 @@
 
   async function deleteBoardHandler() {
     const board = state.boards.find((b) => b.id === state.activeBoardId);
-    if (!confirm(`"${board.name}" panosunu ve içindeki tüm kategori/ürünleri silmek istediğinize emin misiniz?`)) return;
+    if (!confirm(`Are you sure you want to delete "${board.name}" and all of its categories/items?`)) return;
     await api('/boards/' + board.id, { method: 'DELETE' });
     state.activeBoardId = null;
     await loadBoards();
   }
 
   async function addCategoryHandler() {
-    const name = prompt('Yeni kategori adı (örn: "Tatlılar", "İçecekler"):');
+    const name = prompt('New category name (e.g. "Desserts", "Drinks"):');
     if (!name) return;
     await api('/categories', { method: 'POST', body: { board_id: state.activeBoardId, name } });
     await loadBoardDetail(state.activeBoardId);
@@ -239,17 +239,17 @@
           <div class="category-head-left">
             <div style="flex:1">
               <input class="cat-name-input" value="${escAttr(cat.name)}" data-cat="${cat.id}" data-field="name" />
-              <input class="category-note-input" placeholder="Kategori notu (opsiyonel, örn: 'Add Chicken +\$4')" value="${escAttr(cat.note || '')}" data-cat="${cat.id}" data-field="note" />
+              <input class="category-note-input" placeholder="Category note (optional, e.g. 'Add Chicken +\$4')" value="${escAttr(cat.note || '')}" data-cat="${cat.id}" data-field="note" />
             </div>
           </div>
           <div class="category-actions">
-            <button class="btn-icon" data-cat-up="${cat.id}" title="Yukarı taşı">▲</button>
-            <button class="btn-icon" data-cat-down="${cat.id}" title="Aşağı taşı">▼</button>
-            <button class="btn-icon" data-cat-del="${cat.id}" title="Kategoriyi sil">🗑</button>
+            <button class="btn-icon" data-cat-up="${cat.id}" title="Move up">▲</button>
+            <button class="btn-icon" data-cat-down="${cat.id}" title="Move down">▼</button>
+            <button class="btn-icon" data-cat-del="${cat.id}" title="Delete category">🗑</button>
           </div>
         </div>
         <table class="item-table"><tbody data-items-for="${cat.id}"></tbody></table>
-        <div class="add-item-row"><button class="btn-secondary btn-sm" data-add-item="${cat.id}">+ Ürün Ekle</button></div>
+        <div class="add-item-row"><button class="btn-secondary btn-sm" data-add-item="${cat.id}">+ Add Item</button></div>
       `;
       container.appendChild(block);
 
@@ -263,8 +263,8 @@
           <td class="item-name-cell">${esc(item.display_name)}</td>
           <td class="item-badges-cell">${badges}</td>
           <td class="item-price-cell">${item.price != null ? '$' + Number(item.price).toFixed(2) : ''} ${esc(item.price_suffix || '')}</td>
-          <td>${item.pos_product_id ? '🔗 Square' : (item.pos_name_override ? '📝 ' + esc(item.pos_name_override) : '<span class="muted small">bağlı değil</span>')}</td>
-          <td style="text-align:right"><button class="btn-icon" data-edit-item="${item.id}" data-cat="${cat.id}">Düzenle</button></td>
+          <td>${item.pos_product_id ? '🔗 Square' : (item.pos_name_override ? '📝 ' + esc(item.pos_name_override) : '<span class="muted small">not linked</span>')}</td>
+          <td style="text-align:right"><button class="btn-icon" data-edit-item="${item.id}" data-cat="${cat.id}">Edit</button></td>
         `;
         tbody.appendChild(tr);
       });
@@ -300,7 +300,7 @@
 
   async function deleteCategory(id) {
     const cat = state.categories.find((c) => c.id === id);
-    if (!confirm(`"${cat.name}" kategorisini ve içindeki tüm ürünleri silmek istediğinize emin misiniz?`)) return;
+    if (!confirm(`Are you sure you want to delete the "${cat.name}" category and all of its items?`)) return;
     await api('/categories/' + id, { method: 'DELETE' });
     await loadBoardDetail(state.activeBoardId);
   }
@@ -312,7 +312,7 @@
     state.currentItem = item || null;
     state.posLinkedProduct = null;
 
-    $('#item-modal-title').textContent = item ? 'Ürün Düzenle' : 'Yeni Ürün';
+    $('#item-modal-title').textContent = item ? 'Edit Item' : 'New Item';
     $('#item-name').value = item ? item.display_name : '';
     $('#item-desc').value = item ? item.description || '' : '';
     $('#item-price').value = item && item.price != null ? item.price : '';
@@ -351,7 +351,7 @@
     fd.append('image', file);
     const res = await fetch('/api/upload', { method: 'POST', body: fd, credentials: 'same-origin' });
     const data = await res.json();
-    if (!res.ok) { alert(data.error || 'Yükleme hatası'); return; }
+    if (!res.ok) { alert(data.error || 'Upload error'); return; }
     $('#item-image-preview').src = data.url;
     $('#item-image-preview').style.visibility = 'visible';
     $('#item-image-preview').dataset.uploadedUrl = data.url;
@@ -383,7 +383,7 @@
           <div class="pos-item" data-pid="${p.id}">
             <span class="pn">${esc(p.name)}${p.variation_name ? ' — ' + esc(p.variation_name) : ''}</span>
             <span class="pp">${p.price != null ? '$' + Number(p.price).toFixed(2) : ''}</span>
-          </div>`).join('') || '<div class="pos-item muted">Sonuç yok. Square ayarlarından senkronize ettiniz mi?</div>';
+          </div>`).join('') || '<div class="pos-item muted">No results. Did you sync from the Square settings?</div>';
         results.querySelectorAll('[data-pid]').forEach((el) => {
           el.addEventListener('click', () => {
             const product = products.find((p) => p.id === +el.dataset.pid);
@@ -410,7 +410,7 @@
       pos_product_id: state.posLinkedProduct ? state.posLinkedProduct.id : null,
       pos_name_override: $('#item-pos-manual').value.trim(),
     };
-    if (!body.display_name) { alert('Ürün adı gerekli'); return; }
+    if (!body.display_name) { alert('Item name is required'); return; }
     if (!$('#item-image-preview').src || $('#item-image-preview').style.visibility === 'hidden') body.image_url = '';
 
     if (state.currentItem) {
@@ -424,7 +424,7 @@
 
   $('#item-delete-btn').addEventListener('click', async () => {
     if (!state.currentItem) return;
-    if (!confirm(`"${state.currentItem.display_name}" ürününü silmek istediğinize emin misiniz?`)) return;
+    if (!confirm(`Are you sure you want to delete "${state.currentItem.display_name}"?`)) return;
     await api('/items/' + state.currentItem.id, { method: 'DELETE' });
     closeItemModal();
     await loadBoardDetail(state.activeBoardId);
@@ -437,10 +437,10 @@
     $('#setting-square-env').value = s.square_environment || 'production';
     $('#setting-square-location').value = s.square_location_id || '';
     $('#setting-square-token').value = '';
-    $('#setting-square-token').placeholder = s.square_access_token_set ? 'Kayıtlı (değiştirmek için yeni token girin)' : 'Token girin';
+    $('#setting-square-token').placeholder = s.square_access_token_set ? 'Saved (enter a new token to change it)' : 'Enter token';
     $('#token-status').textContent = s.square_access_token_set
-      ? `Token kayıtlı. Son senkronizasyon: ${s.square_last_synced_at ? new Date(s.square_last_synced_at).toLocaleString('tr-TR') : 'henüz yapılmadı'}`
-      : 'Henüz token girilmedi.';
+      ? `Token saved. Last synced: ${s.square_last_synced_at ? new Date(s.square_last_synced_at).toLocaleString('en-US') : 'not yet'}`
+      : 'No token entered yet.';
     loadSquareProducts('');
   }
 
@@ -453,7 +453,7 @@
     const token = $('#setting-square-token').value.trim();
     if (token) body.square_access_token = token;
     await api('/settings', { method: 'PUT', body });
-    $('#settings-msg').textContent = 'Ayarlar kaydedildi ✓';
+    $('#settings-msg').textContent = 'Settings saved ✓';
     $('#settings-msg').className = 'msg ok';
     loadSettings();
   });
@@ -461,11 +461,11 @@
   $('#sync-square-btn').addEventListener('click', async () => {
     const btn = $('#sync-square-btn');
     btn.disabled = true;
-    $('#sync-msg').textContent = 'Senkronize ediliyor…';
+    $('#sync-msg').textContent = 'Syncing…';
     $('#sync-msg').className = 'msg';
     try {
       const result = await api('/square/sync', { method: 'POST' });
-      $('#sync-msg').textContent = `${result.count} ürün/varyasyon senkronize edildi ✓`;
+      $('#sync-msg').textContent = `${result.count} products/variations synced ✓`;
       $('#sync-msg').className = 'msg ok';
       loadSettings();
     } catch (err) {
@@ -488,7 +488,7 @@
       const products = await api('/square/products' + (q ? '?q=' + encodeURIComponent(q) : ''));
       list.innerHTML = products.map((p) => `
         <div class="ppl-row"><span>${esc(p.name)}${p.variation_name ? ' — ' + esc(p.variation_name) : ''}</span><span>${p.price != null ? '$' + Number(p.price).toFixed(2) : ''}</span></div>
-      `).join('') || '<div class="ppl-row muted">Henüz senkronize edilmiş ürün yok.</div>';
+      `).join('') || '<div class="ppl-row muted">No products synced yet.</div>';
     } catch (err) {
       list.innerHTML = `<div class="ppl-row">${esc(err.message)}</div>`;
     }
@@ -505,10 +505,10 @@
       return `<tr>
         <td>${esc(p.device_id)}</td>
         <td>${esc(p.board_slug || '-')}</td>
-        <td>${last.toLocaleString('tr-TR')}</td>
-        <td><span class="status-dot ${online ? 'online' : 'offline'}"></span>${online ? 'Çevrimiçi' : 'Çevrimdışı'}</td>
+        <td>${last.toLocaleString('en-US')}</td>
+        <td><span class="status-dot ${online ? 'online' : 'offline'}"></span>${online ? 'Online' : 'Offline'}</td>
       </tr>`;
-    }).join('') || '<tr><td colspan="4" class="muted">Henüz hiçbir ekran bağlanmadı.</td></tr>';
+    }).join('') || '<tr><td colspan="4" class="muted">No screens have connected yet.</td></tr>';
   }
 
   $('#refresh-screens-btn').addEventListener('click', loadScreens);
@@ -519,7 +519,7 @@
     const newPassword = $('#cp-new').value;
     try {
       await api('/auth/change-password', { method: 'POST', body: { currentPassword, newPassword } });
-      $('#cp-msg').textContent = 'Şifre güncellendi ✓';
+      $('#cp-msg').textContent = 'Password updated ✓';
       $('#cp-msg').className = 'msg ok';
       $('#cp-current').value = '';
       $('#cp-new').value = '';

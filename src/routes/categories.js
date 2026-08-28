@@ -15,7 +15,7 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   const { board_id, name, note = '', column_hint = '' } = req.body || {};
-  if (!board_id || !name) return res.status(400).json({ error: 'board_id ve name gerekli' });
+  if (!board_id || !name) return res.status(400).json({ error: 'board_id and name are required' });
   const maxOrder = db
     .prepare('SELECT COALESCE(MAX(sort_order), -1) AS m FROM categories WHERE board_id = ?')
     .get(board_id).m;
@@ -27,7 +27,7 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM categories WHERE id = ?').get(req.params.id);
-  if (!existing) return res.status(404).json({ error: 'Kategori bulunamadı' });
+  if (!existing) return res.status(404).json({ error: 'Category not found' });
   const {
     name = existing.name,
     note = existing.note,
@@ -41,14 +41,14 @@ router.put('/:id', (req, res) => {
 
 router.delete('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM categories WHERE id = ?').get(req.params.id);
-  if (!existing) return res.status(404).json({ error: 'Kategori bulunamadı' });
+  if (!existing) return res.status(404).json({ error: 'Category not found' });
   db.prepare('DELETE FROM categories WHERE id = ?').run(existing.id);
   res.json({ ok: true });
 });
 
 router.post('/reorder', (req, res) => {
   const { order } = req.body || {};
-  if (!Array.isArray(order)) return res.status(400).json({ error: 'order dizisi gerekli' });
+  if (!Array.isArray(order)) return res.status(400).json({ error: 'order array is required' });
   const stmt = db.prepare('UPDATE categories SET sort_order = ? WHERE id = ?');
   const tx = db.transaction((ids) => ids.forEach((id, idx) => stmt.run(idx, id)));
   tx(order);

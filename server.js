@@ -24,6 +24,7 @@ app.use(
 app.use('/uploads', express.static(UPLOAD_DIR, { maxAge: '7d' }));
 app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 app.use('/display', express.static(path.join(__dirname, 'public', 'display')));
+app.use('/design', express.static(path.join(__dirname, 'public', 'design'), { maxAge: '30d', immutable: true }));
 app.use(express.static(path.join(__dirname, 'public', 'shared')));
 
 // API routes
@@ -47,7 +48,7 @@ app.get('/display/*', (req, res) => res.sendFile(path.join(__dirname, 'public', 
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`OrderOne Signage sunucusu ${PORT} portunda çalışıyor.`);
+  console.log(`OrderOne Signage server running on port ${PORT}.`);
   console.log(`Admin panel:  http://localhost:${PORT}/admin`);
   console.log(`TV display:   http://localhost:${PORT}/display`);
 });

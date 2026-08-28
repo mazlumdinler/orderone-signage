@@ -1,0 +1,171 @@
+[
+  {
+    "file": "board1/breakfast-plates-collage.jpg",
+    "board": "board1",
+    "width": 712,
+    "height": 610,
+    "source_bbox_px": [
+      0,
+      0,
+      712,
+      610
+    ],
+    "description": "Triangular photo collage of breakfast plates (french toast, berry tart, egg & toast, salad+bacon) \u2014 top-left of board 1, directly above the 'Breakfast Plates' heading."
+  },
+  {
+    "file": "board1/french-toast-collage.jpg",
+    "board": "board1",
+    "width": 708,
+    "height": 610,
+    "source_bbox_px": [
+      712,
+      0,
+      1420,
+      610
+    ],
+    "description": "Triangular photo collage of french toast dishes (bacon plate, egg toast, borek, croissant/berries) \u2014 top area of board 1, above the 'French Toast' heading, right of the breakfast-plates collage."
+  },
+  {
+    "file": "board1/waffle-1.jpg",
+    "board": "board1",
+    "width": 660,
+    "height": 336,
+    "source_bbox_px": [
+      1552,
+      260,
+      2212,
+      596
+    ],
+    "description": "Round strawberry-nutella waffle plate photo with fork and napkin \u2014 above the 'Strawberry Nutella Waffle' column."
+  },
+  {
+    "file": "board1/waffle-2.jpg",
+    "board": "board1",
+    "width": 660,
+    "height": 336,
+    "source_bbox_px": [
+      2260,
+      260,
+      2920,
+      596
+    ],
+    "description": "Round waffle plate photo topped with banana/kiwi/strawberry/pistachio, fork and napkin \u2014 above the 'Waffle Street Special' column."
+  },
+  {
+    "file": "board1/pancake-plate.jpg",
+    "board": "board1",
+    "width": 792,
+    "height": 336,
+    "source_bbox_px": [
+      2938,
+      260,
+      3730,
+      596
+    ],
+    "description": "Pancake stack photo with strawberry, banana and chocolate drizzle \u2014 above the 'Classic Pancake' column, right side of board 1."
+  },
+  {
+    "file": "board1/salad-photo.jpg",
+    "board": "board1",
+    "width": 415,
+    "height": 465,
+    "source_bbox_px": [
+      1540,
+      1650,
+      1955,
+      2115
+    ],
+    "description": "Circular Greek salad bowl photo on the green 'Salads' panel, bottom-right of board 1. NOTE: includes the dark-green circular 'Fresh' badge overlapping its top-left corner (badge text is baked into this photo \u2014 recreate the badge separately in CSS and layer it on top, or crop it off)."
+  },
+  {
+    "file": "board1/appetizers-wood-texture.jpg",
+    "board": "board1",
+    "width": 170,
+    "height": 80,
+    "source_bbox_px": [
+      1250,
+      2080,
+      1420,
+      2160
+    ],
+    "description": "Sample patch of the dark wood-plank texture background behind the 'Appetizers & Sides' panel, bottom-left of board 1 (real photographic wood grain, not a flat color)."
+  },
+  {
+    "file": "board1/salad-green-texture.jpg",
+    "board": "board1",
+    "width": 350,
+    "height": 60,
+    "source_bbox_px": [
+      2100,
+      1750,
+      2450,
+      1810
+    ],
+    "description": "Sample patch of the dark-green illustrated food-icon pattern (tomato/veg outlines) used as background texture on the 'Salads' panel, bottom-right of board 1."
+  },
+  {
+    "file": "board2/pastry-collage.jpg",
+    "board": "board2",
+    "width": 1060,
+    "height": 480,
+    "source_bbox_px": [
+      0,
+      0,
+      1060,
+      480
+    ],
+    "description": "Triangular photo collage of cakes/pastries (berry cake, opera cake, tiramisu, carrot cake, cheesecake, tres leches slice) \u2014 top-left of board 2, above 'Mumu's Homemade Pastries' heading."
+  },
+  {
+    "file": "board2/pudding-fruit-photo.jpg",
+    "board": "board2",
+    "width": 1050,
+    "height": 690,
+    "source_bbox_px": [
+      0,
+      1470,
+      1050,
+      2160
+    ],
+    "description": "Overhead photo of banana, blueberries, strawberries and pudding/parfait cups on marble \u2014 bottom-left of board 2, near the 'Cups' heading. The 'Parfait Cup / Fresh Fruit Cup' price text that originally overlapped the top-right corner of this photo region was painted over with the matching background color to keep this crop text-free."
+  },
+  {
+    "file": "board2/croissant-bagel-diamond.jpg",
+    "board": "board2",
+    "width": 561,
+    "height": 428,
+    "source_bbox_px": [
+      1483,
+      222,
+      2044,
+      650
+    ],
+    "description": "Diamond-shaped photo pair (everything-bagel breakfast sandwich, top-left triangle; ham & egg croissant sandwich, bottom-right triangle) beside the 'Croissant & Bagel' heading, board 2. Background auto-masked to white to remove the overlapping 'Croissant & Bagel' script text."
+  },
+  {
+    "file": "board2/wrap-diamond.jpg",
+    "board": "board2",
+    "width": 177,
+    "height": 291,
+    "source_bbox_px": [
+      2528,
+      254,
+      2705,
+      545
+    ],
+    "description": "Triangular photo of sliced wrap halves (pinwheel arrangement) beside the 'Wrap' heading, board 2. Background auto-masked to white to remove surrounding text."
+  },
+  {
+    "file": "board2/panini-diamond.jpg",
+    "board": "board2",
+    "width": 328,
+    "height": 367,
+    "source_bbox_px": [
+      3108,
+      165,
+      3436,
+      532
+    ],
+    "description": "Triangular photo of a stacked caprese panini sandwich beside the 'Panini' heading, board 2. Background auto-masked to white to remove surrounding text; right/bottom edges trimmed slightly to drop a stray sliver of the neighboring sandwich photo."
+  }
+]

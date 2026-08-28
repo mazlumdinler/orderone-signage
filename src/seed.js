@@ -9,9 +9,9 @@ function ensureAdminUser() {
   const password = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
   const hash = bcrypt.hashSync(password, 10);
   db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)').run(username, hash);
-  console.log(`[seed] Admin kullanıcı oluşturuldu -> kullanıcı adı: "${username}"`);
+  console.log(`[seed] Admin user created -> username: "${username}"`);
   if (!process.env.ADMIN_PASSWORD) {
-    console.log(`[seed] UYARI: varsayılan şifre kullanılıyor ("${password}"). Lütfen giriş yaptıktan sonra değiştirin.`);
+    console.log(`[seed] WARNING: using default password ("${password}"). Please change it after logging in.`);
   }
 }
 
@@ -51,7 +51,7 @@ function ensureMenuSeeded() {
     });
   });
   tx();
-  console.log('[seed] Menü verisi (2 board) veritabanına yüklendi.');
+  console.log('[seed] Menu data (2 boards) loaded into the database.');
 }
 
 function ensureSeeded() {
