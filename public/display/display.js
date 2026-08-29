@@ -126,10 +126,17 @@
     return '<div class="board-footer">' + parts.join('') + '</div>';
   }
 
+  function formatPrice(value) {
+    // Whole-dollar prices show without decimals ($17), fractional ones keep them ($3.50 -> $3.5 style used on the original menu, but we keep 2dp for clarity when not whole).
+    var n = Number(value);
+    var str = (Math.round(n * 100) % 100 === 0) ? String(Math.round(n)) : n.toFixed(2).replace(/0$/, '');
+    return str;
+  }
+
   function renderItem(item) {
     var priceHtml = '';
     if (item.price != null) {
-      priceHtml = '<span class="menu-item-price">$' + Number(item.price).toFixed(2) + '</span>';
+      priceHtml = '<span class="menu-item-price"><span class="menu-item-price-dollar">$</span>' + formatPrice(item.price) + '</span>';
     }
     if (item.price_suffix) {
       priceHtml += '<span class="menu-item-price-suffix">' + esc(item.price_suffix) + '</span>';
@@ -142,7 +149,7 @@
         '<div class="menu-item-row">' +
           '<div class="menu-item-name-wrap"><span class="menu-item-name">' + esc(item.name) + '</span>' +
           '<span class="menu-item-badges">' + badgesHtml(item.badges) + '</span></div>' +
-          '<div class="menu-item-leader">' + priceHtml + '</div>' +
+          (priceHtml ? '<div class="menu-item-price-wrap"><span class="menu-item-sep">|</span><div class="menu-item-leader">' + priceHtml + '</div></div>' : '') +
         '</div>' +
         desc +
       '</div>'
